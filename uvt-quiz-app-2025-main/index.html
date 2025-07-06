@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Taking Platform</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="/uvt-quiz-app-2025/favicon.ico" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header-container">
+        <h1>Bachelor Thesis Questions for English Informatics</h1>
+        <button
+          id="darkModeToggle"
+          class="dark-mode-toggle"
+          aria-label="Toggle dark mode"
+        >
+          <span class="toggle-icon">🌙</span>
+        </button>
+      </div>
+
+      <div class="dashboard-screen" id="dashboardScreen">
+        <div class="section-header">
+          <h3>📊 Your Progress Overview</h3>
+          <p>Track your learning journey and achievements</p>
+        </div>
+
+        <div class="dashboard-stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-content">
+              <h3 id="totalQuestionsStat">0</h3>
+              <p>Total Questions</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📑</div>
+            <div class="stat-content">
+              <h3 id="totalCategoriesStat">0</h3>
+              <p>Study Topics</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-content">
+              <h3 id="testsCompletedStat">0</h3>
+              <p>Tests Completed</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-content">
+              <h3 id="averageScoreStat">0%</h3>
+              <p>Average Score</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <h3>🚀 Study Actions</h3>
+          <p>Choose how you want to practice and learn</p>
+        </div>
+
+        <div class="dashboard-actions-grid">
+          <div
+            class="action-card primary"
+            onclick="showCategorySelectionScreen()"
+          >
+            <div class="action-icon">📝</div>
+            <div class="action-content">
+              <h3>Study by Topic</h3>
+              <p>Choose a specific subject area to practice</p>
+            </div>
+            <div class="action-arrow">→</div>
+          </div>
+
+          <div class="action-card secondary" onclick="generateRandomTest()">
+            <div class="action-icon">🎲</div>
+            <div class="action-content">
+              <h3>Random Test</h3>
+              <p>All 219 questions from all topics (90 min timer)</p>
+            </div>
+            <div class="action-arrow">→</div>
+          </div>
+
+          <div class="action-card tertiary" onclick="showCustomTestSelection()">
+            <div class="action-icon">⚙️</div>
+            <div class="action-content">
+              <h3>Custom Test</h3>
+              <p>Create your own mix of topics</p>
+            </div>
+            <div class="action-arrow">→</div>
+          </div>
+
+          <div class="action-card stats" onclick="showStatistics()">
+            <div class="action-icon">📈</div>
+            <div class="action-content">
+              <h3>View Statistics</h3>
+              <p>Track your progress and performance</p>
+            </div>
+            <div class="action-arrow">→</div>
+          </div>
+        </div>
+
+        <div id="dashboardLoading" class="loading" style="display: none">
+          Loading data...
+        </div>
+      </div>
+
+      <div class="statistics-screen" id="statisticsScreen">
+        <div class="stats-actions" style="margin-bottom: 30px">
+          <button class="nav-button secondary" onclick="showDashboard()">
+            Back to Dashboard
+          </button>
+          <button class="nav-button danger" onclick="clearAllStatistics()">
+            Clear All Statistics
+          </button>
+        </div>
+
+        <h2
+          style="
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+          "
+        >
+          Performance Statistics
+        </h2>
+
+        <div class="stats-overview">
+          <div class="stats-card">
+            <h3>📊 Overall Performance</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <span class="stat-value" id="totalTestsStat">0</span>
+                <span class="stat-label">Tests Completed</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value" id="totalQuestionsAnsweredStat"
+                  >0</span
+                >
+                <span class="stat-label">Questions Answered</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value" id="overallAccuracyStat">0%</span>
+                <span class="stat-label">Overall Accuracy</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value" id="totalTimeSpentStat">0h</span>
+                <span class="stat-label">Total Study Time</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-card">
+            <h3>🔥 Streak & Achievements</h3>
+            <div class="streak-info">
+              <div class="streak-current">
+                <span class="streak-number" id="currentStreakStat">0</span>
+                <span class="streak-label">Current Streak</span>
+              </div>
+              <div class="streak-best">
+                <span class="streak-number" id="bestStreakStat">0</span>
+                <span class="streak-label">Best Streak</span>
+              </div>
+            </div>
+            <div class="achievements-container" id="achievementsContainer">
+              <p>No achievements yet. Keep practicing!</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-tabs">
+          <button class="tab-button active" onclick="showStatsTab('history')">
+            Test History
+          </button>
+          <button class="tab-button" onclick="showStatsTab('categories')">
+            Category Performance
+          </button>
+          <button class="tab-button" onclick="showStatsTab('weakareas')">
+            Weak Areas
+          </button>
+        </div>
+
+        <div class="stats-content">
+          <div class="stats-tab-content active" id="historyTab">
+            <h3>Recent Test History</h3>
+            <div class="test-history-container" id="testHistoryContainer">
+              <p>No test history available.</p>
+            </div>
+          </div>
+
+          <div class="stats-tab-content" id="categoriesTab">
+            <h3>Performance by Category</h3>
+            <div
+              class="category-performance-container"
+              id="categoryPerformanceContainer"
+            >
+              <p>No category data available.</p>
+            </div>
+          </div>
+
+          <div class="stats-tab-content" id="weakareasTab">
+            <h3>Questions You've Struggled With</h3>
+            <div class="weak-areas-container" id="weakAreasContainer">
+              <p>No weak areas identified yet.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="category-selection" id="categoryScreen">
+        <h2
+          style="
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+          "
+        >
+          Select a Subtopic
+        </h2>
+        <div class="category-grid" id="categoryGrid">
+          <div class="loading">Loading categories...</div>
+        </div>
+        <button
+          class="nav-button secondary"
+          style="display: block; margin: 20px auto 0"
+          onclick="showDashboard()"
+        >
+          Back to Dashboard
+        </button>
+      </div>
+
+      <div class="custom-test-selection" id="customTestScreen">
+        <div class="custom-test-actions" style="margin-bottom: 30px">
+          <div class="button-group">
+            <button
+              class="nav-button"
+              id="generateCustomTestBtn"
+              onclick="generateCustomTest()"
+              disabled
+            >
+              Generate Custom Test (30 questions)
+            </button>
+            <button class="nav-button secondary" onclick="showDashboard()">
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+
+        <h2
+          style="
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+          "
+        >
+          Create Custom 30-Question Test
+        </h2>
+        <p
+          style="
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+          "
+        >
+          Select categories to include in your custom test:
+        </p>
+
+        <div class="custom-test-categories" id="customTestCategories">
+          <div class="loading">Loading categories...</div>
+        </div>
+
+        <div
+          class="selected-info"
+          id="selectedCategoriesInfo"
+          style="text-align: center; margin-top: 20px"
+        >
+          Selected: <span id="selectedCount">0</span> categories,
+          <span id="selectedQuestionCount">0</span> questions available
+        </div>
+      </div>
+
+      <div class="test-screen" id="testScreen">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="question-container">
+          <div class="question-header">
+            <div>
+              <span class="question-number" id="questionNumber"></span>
+              <span
+                style="color: var(--text-muted); margin-left: 10px"
+                id="categoryName"
+              ></span>
+            </div>
+            <span id="timerDisplay"></span>
+            <button id="quitTestButton" class="quit-button" title="Quit Test">
+              ×
+            </button>
+          </div>
+          <div class="question-text" id="questionText"></div>
+          <div id="questionCodeContainer" style="margin-bottom: 25px">
+            <pre><code id="questionCode"></code></pre>
+          </div>
+          <div
+            id="questionImageContainer"
+            style="text-align: center; margin-bottom: 25px"
+          ></div>
+          <div class="options" id="optionsContainer"></div>
+        </div>
+
+        <div class="navigation">
+          <div class="navigation-controls">
+            <button
+              class="nav-button secondary"
+              id="prevButton"
+              onclick="previousQuestion()"
+            >
+              Previous
+            </button>
+            <span id="questionStatus"></span>
+            <button class="nav-button" id="nextButton">Next</button>
+          </div>
+          <input
+            type="range"
+            id="questionSlider"
+            min="0"
+            value="0"
+            class="question-slider"
+          />
+        </div>
+      </div>
+
+      <div class="results-screen" id="resultsScreen">
+        <h2 style="color: var(--text-primary); margin-bottom: 30px">
+          Test Complete!
+        </h2>
+        <div class="score-circle">
+          <svg width="200" height="200">
+            <defs>
+              <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop
+                  offset="0%"
+                  style="stop-color: #667eea; stop-opacity: 1"
+                />
+                <stop
+                  offset="100%"
+                  style="stop-color: #764ba2; stop-opacity: 1"
+                />
+              </linearGradient>
+            </defs>
+            <circle cx="100" cy="100" r="85" class="score-circle-bg"></circle>
+            <circle
+              cx="100"
+              cy="100"
+              r="85"
+              class="score-circle-progress"
+              id="scoreCircle"
+            ></circle>
+          </svg>
+          <div class="score-text" id="scoreText">0%</div>
+        </div>
+        <div class="results-summary" id="resultsSummary"></div>
+        <div class="results-actions">
+          <button class="nav-button" onclick="showReview()">
+            Review Answers
+          </button>
+          <button class="nav-button secondary" onclick="resetTest()">
+            Back to Dashboard
+          </button>
+        </div>
+        <div
+          class="answer-review"
+          id="answerReview"
+          style="display: none"
+        ></div>
+      </div>
+
+      <div class="made-by-footer">Made by Paul</div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <div
+      id="exit-confirmation-modal"
+      class="modal-overlay"
+      style="display: none"
+    >
+      <div class="modal-content">
+        <h3 class="modal-title">Are you sure?</h3>
+        <p class="modal-text">
+          Your current test progress will be lost if you exit now.
+        </p>
+        <div class="modal-buttons">
+          <button id="cancel-exit-btn" class="modal-button secondary">
+            Stay
+          </button>
+          <button id="confirm-exit-btn" class="modal-button primary">
+            Exit Test
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="imageZoomModal" class="image-zoom-modal" style="display: none">
+      <span id="closeZoomBtn" class="close-zoom-btn">&times;</span>
+      <img
+        id="zoomedImage"
+        class="image-zoom-modal-content"
+        src=""
+        alt="Zoomed image"
+      />
+    </div>
+  </body>
+</html>
